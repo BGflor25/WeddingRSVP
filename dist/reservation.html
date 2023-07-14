@@ -1,16 +1,31 @@
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wedding test - reservations</title>
 </head>
-<body>
-    <h1>Starting wedding reservation</h1>
 
-    <button id="getGuest"> click me!</button>
-    <div id="placeGuests"></div>
+<body>
+    <h1>Hallo <span id="name1"></span><span id="moreThanOneGuest"> en </span><span id="name2"></span></h1>
+
+
+    <p><span id="aantalPersonen1"></span> uitgenodigd voor onze trouw<span id="avondfeest1"> alsook het
+            avondfeest</span>.</p>
+
+    <form>
+        <div><span id="aantalPersonen2"></span>aanwezig zijn op de trouw en bijhorende receptie?</div>
+        <label for="aanwezigheidTrouw"></label>
+        <input type="checkbox" name="aanwezigheidTrouw" id="cbTrouw">
+    </form>
+    <form id="avondfeest2">
+        <div><span id="aantalPersonen3"></span>aanwezig zijn op het avondfeest?</div>
+        <label for="aanwezigheidTrouw"></label>
+        <input type="checkbox" name="aanwezigheidAvondfeest" id="cbAvondfeest">
+    </form>
 
     <script src="reservation.bundle.js"></script>
 </body>
+
 </html>
