@@ -5,7 +5,8 @@ module.exports = {
     entry: {
         index: path.join(__dirname, 'src', 'index.js'),
         import: path.join(__dirname, 'src', 'import.js'),
-        reservation: path.join(__dirname, 'src', 'reservation.js')
+        reservation: path.join(__dirname, 'src', 'reservation.js'),
+        reservationWedding: path.join(__dirname, 'src', 'reservationWedding.js')
     },
     output: {
         path: path.join(__dirname, 'dist'),

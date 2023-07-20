@@ -2,7 +2,7 @@
 import { initializeApp } from 'firebase/app'
 import {
     getFirestore, collection, getDocs, onSnapshot,
-    addDoc, deleteDoc, doc,
+    addDoc, deleteDoc, doc, updateDoc,
     where, query
 } from 'firebase/firestore'
 
@@ -14,6 +14,10 @@ const firebaseConfig = {
     messagingSenderId: "926634763848",
     appId: "1:926634763848:web:87b79b4bcd09cff39b1a7d"
 }
+
+const cbTrouw = document.getElementById("cbTrouw");
+const cbAvondfeest = document.getElementById("cbAvondfeest");
+
 
 // init firebase app
 initializeApp(firebaseConfig)
@@ -35,6 +39,7 @@ console.log(invitationNumber)
 const q = query(colRef, where("invitationNumber", "==", parseInt(invitationNumber)))
 let guests = []
 onSnapshot(q, (snapshot) => {
+    guests.length = 0
     snapshot.docs.forEach((doc) => {
         guests.push({ ...doc.data(), id: doc.id })
     })
@@ -42,7 +47,6 @@ onSnapshot(q, (snapshot) => {
     let name1 = document.getElementById("name1")
     let name2 = document.getElementById("name2")
     if (guests.length >= 2) {
-        console.log("test")
         name1.innerText = guests[0].surname
         name2.innerText = guests[1].surname
         document.getElementById("aantalPersonen1").innerText = "Jullie zijn"
@@ -56,12 +60,41 @@ onSnapshot(q, (snapshot) => {
         document.getElementById("aantalPersonen1").innerText = "Je bent "
         document.getElementById("aantalPersonen2").innerText = "Ben je "
     }
-    if (guests[0].inviteToDinner === false){
+    if (guests[0].inviteToDinner === false) {
         document.getElementById("avondfeest1").remove()
         document.getElementById("avondfeest2").remove()
     }
+    updateCheckboxes();
 })
 
+//reservatie trouw klik-event
 
+cbTrouw.addEventListener('change', function () {
+    updateReservering()
+});
 
+//reservatie avondfeest klik-event
+
+cbAvondfeest.addEventListener('change', function () {
+    updateReservering()
+});
+
+//functie cbs wegschrijven naar DB
+function updateReservering() {
+    for (let i = 0; i < guests.length; i++) {
+        const docRef = doc(db, 'guests', guests[i].id)
+        updateDoc(docRef, {
+            rsvpWedding: cbTrouw.checked,
+            rsvpDinner: cbAvondfeest.checked
+        })
+    }
+}
+function updateCheckboxes() {
+    if (guests[0].rsvpWedding === true) {
+        cbTrouw.checked = true
+    }
+    if (guests[0].rsvpDinner === true) {
+        cbAvondfeest.checked = true
+    }
+}
 
