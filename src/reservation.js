@@ -1,8 +1,8 @@
 //connect to DB
 import { initializeApp } from 'firebase/app'
 import {
-    getFirestore, collection, getDocs, onSnapshot,
-    addDoc, deleteDoc, doc, updateDoc,
+    getFirestore, collection, onSnapshot,
+    doc, getDoc, updateDoc,
     where, query
 } from 'firebase/firestore'
 
@@ -15,7 +15,6 @@ const firebaseConfig = {
     appId: "1:926634763848:web:87b79b4bcd09cff39b1a7d"
 }
 
-const cbTrouw = document.getElementById("cbTrouw");
 const cbAvondfeest = document.getElementById("cbAvondfeest");
 
 
@@ -26,58 +25,136 @@ initializeApp(firebaseConfig)
 const db = getFirestore()
 
 // collection ref
-const colRef = collection(db, 'guests')
+const GuestsDB = collection(db, 'guests')
 //get URL parameters
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
-let invitationNumber = urlParams.get('code')
+let invitationID = urlParams.get('code')
+
+const invitation = doc(db, "invitations", invitationID);
+try {
+    const docSnap = await getDoc(invitation);
+    console.log(docSnap.data());
+} catch (error) {
+    console.log(error)
+}
 
 
-console.log(invitationNumber)
 
-//DB gegevens opvragen (query) op basis van URL parameter
-const q = query(colRef, where("invitationNumber", "==", parseInt(invitationNumber)))
+//gasten opvragen (query) op basis van URL parameter
+const guestQuery = query(GuestsDB, where("invitationID", "==", invitationID))
 let guests = []
-onSnapshot(q, (snapshot) => {
+onSnapshot(guestQuery, (snapshot) => {
     guests.length = 0
     snapshot.docs.forEach((doc) => {
         guests.push({ ...doc.data(), id: doc.id })
     })
     console.log(guests)
-    let name1 = document.getElementById("name1")
-    let name2 = document.getElementById("name2")
-    if (guests.length >= 2) {
-        name1.innerText = guests[0].surname
-        name2.innerText = guests[1].surname
-        document.getElementById("aantalPersonen1").innerText = "Jullie zijn"
-        document.getElementById("aantalPersonen2").innerText = "Zijn jullie "
-        document.getElementById("aantalPersonen3").innerText = "Zijn jullie "
-    }
-    else if (guests.length == 1) {
-        document.getElementById("moreThanOneGuest").remove()
-        document.getElementById("name2").remove()
-        name1.innerText = guests[0].surname
-        document.getElementById("aantalPersonen1").innerText = "Je bent "
-        document.getElementById("aantalPersonen2").innerText = "Ben je "
-    }
-    if (guests[0].inviteToDinner === false) {
-        document.getElementById("avondfeest1").remove()
-        document.getElementById("avondfeest2").remove()
-    }
-    updateCheckboxes();
+    setLayout()
+    //updateCheckboxes();
 })
 
+function setLayout() {
+    //aanmaken titel
+    const title = document.createElement('h1')
+
+    const name1 = document.createElement('div')
+    name1.setAttribute('id', 'name1')
+    const name1Content = document.createTextNode(guests[0].surname)
+    name1.appendChild(name1Content)
+    let titleContent = ""
+    if (guests.length > 1) {
+        const name2 = document.createElement('div')
+        name2.setAttribute('id', 'name2')
+        const name2Content = document.createTextNode(guests[1].surname)
+        name2.appendChild(name2Content)
+        titleContent = document.createTextNode('Hallo ' + name1.innerText + ' en ' + name2.innerText)
+    }
+    else {
+        titleContent = document.createTextNode('Hallo ' + name1.innerText)
+    }
+    title.appendChild(titleContent)
+    const body = document.querySelector('body')
+    body.appendChild(title)
+
+    //deel2 - uitnodiging
+    const invitationSentence = document.createElement('p')
+    let invitationSentenceContent = ""
+    if (guests.length > 1) {
+        if (invitation.inviteToDinner === true) {
+            invitationSentenceContent = document.createTextNode('Jullie zijn uitgenodigd voor onze trouw en bijhorende receptie alsook voor het avondfeest.')
+        }
+        else {
+            invitationSentenceContent = document.createTextNode('Jullie zijn uitgenodigd voor onze trouw en bijhorende receptie.')
+        }
+    }
+    else{
+        if (invitation.inviteToDinner === true) {
+            invitationSentenceContent = document.createTextNode('Je bent uitgenodigd voor onze trouw en bijhorende receptie alsook voor het avondfeest.')
+        }
+        else {
+            invitationSentenceContent = document.createTextNode('Je bent uitgenodigd voor onze trouw en bijhorende receptie.')
+        }
+    }
+    invitationSentence.appendChild(invitationSentenceContent)
+    body.appendChild(invitationSentence)
+
+    //deel3 - rsvp trouw
+    const rsvpWeddingForm = document.createElement('form')
+    const rsvpWeddingQuestion = document.createElement('p')
+    let rsvpWeddingQuestionContent = ""
+    if(guests.length > 1){
+        rsvpWeddingQuestionContent = document.createTextNode('Zullen jullie aanwezig zijn op onze trouw en bijhorende receptie?')
+    }
+    else{
+        rsvpWeddingQuestionContent = document.createTextNode('Zal je aanwezig zijn op onze trouw en bijhorende receptie?')
+    }
+    rsvpWeddingQuestion.appendChild(rsvpWeddingQuestionContent)
+    rsvpWeddingForm.appendChild(rsvpWeddingQuestion)
+
+    const cbWedding1 = document.createElement('input')
+    cbWedding1.setAttribute('type','checkbox')
+    cbWedding1.setAttribute('name','rsvpWeddingGuest1')
+    cbWedding1.setAttribute('id','0')
+    rsvpWeddingForm.appendChild(cbWedding1)
+
+    if(guests.length > 1){
+        const labelWedding1 = document.createElement('label')
+        labelWedding1.innerText = guests[0].surname
+        labelWedding1.setAttribute('for','rsvpWeddingGuest1')
+        rsvpWeddingForm.appendChild(labelWedding1)
+
+        const cbWedding2 = document.createElement('input')
+        cbWedding2.setAttribute('type','checkbox')
+        cbWedding2.setAttribute('name','rsvpWeddingGuest2')
+        cbWedding2.setAttribute('id','1')
+        const labelWedding2 = document.createElement('label')
+        labelWedding2.innerText = guests[1].surname
+        labelWedding2.setAttribute('for','rsvpWeddingGuest2')
+        rsvpWeddingForm.appendChild(cbWedding2)
+        rsvpWeddingForm.appendChild(labelWedding2)
+    }
+
+
+    body.appendChild(rsvpWeddingForm)
+}
+
+//nog uit te werken
+/*function hasKids() {
+
+}*/
+
 //reservatie trouw klik-event
+const cbWeddingGuest1 = document.getElementById("0");
+const cbWeddingGuest2 = document.getElementById("1");
 
-cbTrouw.addEventListener('change', function () {
+cbWeddingGuest1.addEventListener('change', function () {
+    updateReservering()
+});
+cbWeddingGuest2.addEventListener('change', function () {
     updateReservering()
 });
 
-//reservatie avondfeest klik-event
-
-cbAvondfeest.addEventListener('change', function () {
-    updateReservering()
-});
 
 //functie cbs wegschrijven naar DB
 function updateReservering() {
@@ -89,12 +166,5 @@ function updateReservering() {
         })
     }
 }
-function updateCheckboxes() {
-    if (guests[0].rsvpWedding === true) {
-        cbTrouw.checked = true
-    }
-    if (guests[0].rsvpDinner === true) {
-        cbAvondfeest.checked = true
-    }
-}
+
 

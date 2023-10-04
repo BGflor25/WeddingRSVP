@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import {
-  getFirestore, collection, getDocs,
-  addDoc, deleteDoc, doc
+  getFirestore, collection, getDocs, doc,
+  addDoc, updateDoc
 } from 'firebase/firestore'
 
 const firebaseConfig = {
@@ -20,19 +20,31 @@ initializeApp(firebaseConfig)
 const db = getFirestore()
 
 // collection ref
-const colRef = collection(db, 'guests')
+const guestList = collection(db, 'guests')
+const invitationsList = collection(db, 'invitations')
 
-// get collection data
-getDocs(colRef)
+let guests = []
+getDocs(guestList)
   .then((snapshot) => {
-    let guests = []
     snapshot.docs.forEach((doc) => {
       guests.push({ ...doc.data(), id: doc.id })
     })
-    //console.log(guests)
+    console.log(guests)
+  })
+
+let invitations = []
+getDocs(invitationsList)
+  .then((snapshot) => {
+    snapshot.docs.forEach((doc) => {
+      invitations.push({ ...doc.data(), id: doc.id })
+    })
+    console.log(invitations)
   })
 
 
+
+//variables
+let selectedList = document.getElementById("typeOfImport")
 
 // Bestand selecteren
 let selectedFile;
@@ -54,7 +66,12 @@ document.getElementById('importButton').addEventListener("click", () => {
         XLData = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheet]);
         console.log(XLData);
         console.log(XLData.length)
-        importExcel();
+        if (selectedList.value == 1) {
+          importGuestList()
+        }
+        if (selectedList.value == 2) {
+          importInvitationList()
+        }
         document.getElementById("jsondata").innerHTML = JSON.stringify(XLData, undefined, 4)
       });
     }
@@ -62,9 +79,9 @@ document.getElementById('importButton').addEventListener("click", () => {
 });
 
 //EXCEL/JSON DATA injecteren in database
-function importExcel() {
+function importGuestList() {
   for (let i = 0; i < XLData.length; i++) {
-    addDoc(colRef, {
+    addDoc(guestList, {
       name: XLData[i].Name,
       surname: XLData[i].Surname,
       invitationNumber: XLData[i].invitationNumber,
@@ -72,7 +89,50 @@ function importExcel() {
       inviteToDinner: XLData[i].inviteToDinner,
       rsvpWedding: XLData[i].rsvpWedding,
       rsvpDinner: XLData[i].rsvpDinner,
-      plusOneAllowed: XLData[i].plusOneAllowed
+      isPlusOne: XLData[i].isPlusOne,
+      isKids: XLData[i].isKids
     })
   }
+}
+
+function importInvitationList() {
+  for (let i = 0; i < XLData.length; i++) {
+    addDoc(invitationsList, {
+      shortID: XLData[i].shortID,
+      ref: XLData[i].Ref,
+      plusOneAllowed: XLData[i].plusOneAllowed,
+      plusOneInvited: XLData[i].plusOneInvited,
+      kidsAllowed: XLData[i].kidsAllowed,
+      kidsInvited: XLData[i].kidsInvited,
+    })
+  }
+}
+
+let syncButton = document.getElementById("syncButton")
+
+syncButton.addEventListener("click", () => {
+  syncIDS()
+})
+
+function syncIDS() {
+
+
+
+
+  for (let i = 0; i < guests.length; i++) {
+    const searchIndex = invitations.findIndex((invitation) => invitation.shortID == guests[i].invitationNumber);
+    console.log(guests[i].invitationNumber)
+    console.log(invitations[searchIndex].shortID)
+
+    updateGuestList(guests[i].id, invitations[searchIndex].id)
+
+  }
+  console.log(guests)
+}
+
+function updateGuestList(guestsID, id) {
+  const docRef = doc(db, 'guests', guestsID)
+  updateDoc(docRef, {
+    invitationID: id
+  })
 }

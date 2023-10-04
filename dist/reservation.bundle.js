@@ -34,9 +34,9 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /*!****************************!*\
   !*** ./src/reservation.js ***!
   \****************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+/***/ ((module, __webpack_exports__, __webpack_require__) => {
 
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var firebase_app__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! firebase/app */ \"./node_modules/firebase/app/dist/esm/index.esm.js\");\n/* harmony import */ var firebase_firestore__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! firebase/firestore */ \"./node_modules/firebase/firestore/dist/esm/index.esm.js\");\n//connect to DB\r\n\r\n\r\n\r\nconst firebaseConfig = {\r\n    apiKey: \"AIzaSyBML3R1uUh8pkGGtqDqJZ74LdRq1vZomFM\",\r\n    authDomain: \"hanneflorewedding.firebaseapp.com\",\r\n    projectId: \"hanneflorewedding\",\r\n    storageBucket: \"hanneflorewedding.appspot.com\",\r\n    messagingSenderId: \"926634763848\",\r\n    appId: \"1:926634763848:web:87b79b4bcd09cff39b1a7d\"\r\n}\r\n\r\nconst cbTrouw = document.getElementById(\"cbTrouw\");\r\nconst cbAvondfeest = document.getElementById(\"cbAvondfeest\");\r\n\r\n\r\n// init firebase app\r\n(0,firebase_app__WEBPACK_IMPORTED_MODULE_0__.initializeApp)(firebaseConfig)\r\n\r\n// init services\r\nconst db = (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_1__.getFirestore)()\r\n\r\n// collection ref\r\nconst colRef = (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_1__.collection)(db, 'guests')\r\n//get URL parameters\r\nconst queryString = window.location.search;\r\nconst urlParams = new URLSearchParams(queryString);\r\nlet invitationNumber = urlParams.get('code')\r\n\r\n\r\nconsole.log(invitationNumber)\r\n\r\n//DB gegevens opvragen (query) op basis van URL parameter\r\nconst q = (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_1__.query)(colRef, (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_1__.where)(\"invitationNumber\", \"==\", parseInt(invitationNumber)))\r\nlet guests = []\r\n;(0,firebase_firestore__WEBPACK_IMPORTED_MODULE_1__.onSnapshot)(q, (snapshot) => {\r\n    guests.length = 0\r\n    snapshot.docs.forEach((doc) => {\r\n        guests.push({ ...doc.data(), id: doc.id })\r\n    })\r\n    console.log(guests)\r\n    let name1 = document.getElementById(\"name1\")\r\n    let name2 = document.getElementById(\"name2\")\r\n    if (guests.length >= 2) {\r\n        name1.innerText = guests[0].surname\r\n        name2.innerText = guests[1].surname\r\n        document.getElementById(\"aantalPersonen1\").innerText = \"Jullie zijn\"\r\n        document.getElementById(\"aantalPersonen2\").innerText = \"Zijn jullie \"\r\n        document.getElementById(\"aantalPersonen3\").innerText = \"Zijn jullie \"\r\n    }\r\n    else if (guests.length == 1) {\r\n        document.getElementById(\"moreThanOneGuest\").remove()\r\n        document.getElementById(\"name2\").remove()\r\n        name1.innerText = guests[0].surname\r\n        document.getElementById(\"aantalPersonen1\").innerText = \"Je bent \"\r\n        document.getElementById(\"aantalPersonen2\").innerText = \"Ben je \"\r\n    }\r\n    if (guests[0].inviteToDinner === false) {\r\n        document.getElementById(\"avondfeest1\").remove()\r\n        document.getElementById(\"avondfeest2\").remove()\r\n    }\r\n    updateCheckboxes();\r\n})\r\n\r\n//reservatie trouw klik-event\r\n\r\ncbTrouw.addEventListener('change', function () {\r\n    updateReservering()\r\n});\r\n\r\n//reservatie avondfeest klik-event\r\n\r\ncbAvondfeest.addEventListener('change', function () {\r\n    updateReservering()\r\n});\r\n\r\n//functie cbs wegschrijven naar DB\r\nfunction updateReservering() {\r\n    for (let i = 0; i < guests.length; i++) {\r\n        const docRef = (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_1__.doc)(db, 'guests', guests[i].id)\r\n        ;(0,firebase_firestore__WEBPACK_IMPORTED_MODULE_1__.updateDoc)(docRef, {\r\n            rsvpWedding: cbTrouw.checked,\r\n            rsvpDinner: cbAvondfeest.checked\r\n        })\r\n    }\r\n}\r\nfunction updateCheckboxes() {\r\n    if (guests[0].rsvpWedding === true) {\r\n        cbTrouw.checked = true\r\n    }\r\n    if (guests[0].rsvpDinner === true) {\r\n        cbAvondfeest.checked = true\r\n    }\r\n}\r\n\r\n\n\n//# sourceURL=webpack://web/./src/reservation.js?");
+eval("__webpack_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {\n__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var firebase_app__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! firebase/app */ \"./node_modules/firebase/app/dist/esm/index.esm.js\");\n/* harmony import */ var firebase_firestore__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! firebase/firestore */ \"./node_modules/firebase/firestore/dist/esm/index.esm.js\");\n//connect to DB\r\n\r\n\r\n\r\nconst firebaseConfig = {\r\n    apiKey: \"AIzaSyBML3R1uUh8pkGGtqDqJZ74LdRq1vZomFM\",\r\n    authDomain: \"hanneflorewedding.firebaseapp.com\",\r\n    projectId: \"hanneflorewedding\",\r\n    storageBucket: \"hanneflorewedding.appspot.com\",\r\n    messagingSenderId: \"926634763848\",\r\n    appId: \"1:926634763848:web:87b79b4bcd09cff39b1a7d\"\r\n}\r\n\r\nconst cbAvondfeest = document.getElementById(\"cbAvondfeest\");\r\n\r\n\r\n// init firebase app\r\n(0,firebase_app__WEBPACK_IMPORTED_MODULE_0__.initializeApp)(firebaseConfig)\r\n\r\n// init services\r\nconst db = (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_1__.getFirestore)()\r\n\r\n// collection ref\r\nconst GuestsDB = (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_1__.collection)(db, 'guests')\r\n//get URL parameters\r\nconst queryString = window.location.search;\r\nconst urlParams = new URLSearchParams(queryString);\r\nlet invitationID = urlParams.get('code')\r\n\r\nconst invitation = (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_1__.doc)(db, \"invitations\", invitationID);\r\ntry {\r\n    const docSnap = await (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_1__.getDoc)(invitation);\r\n    console.log(docSnap.data());\r\n} catch (error) {\r\n    console.log(error)\r\n}\r\n\r\n\r\n\r\n//gasten opvragen (query) op basis van URL parameter\r\nconst guestQuery = (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_1__.query)(GuestsDB, (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_1__.where)(\"invitationID\", \"==\", invitationID))\r\nlet guests = []\r\n;(0,firebase_firestore__WEBPACK_IMPORTED_MODULE_1__.onSnapshot)(guestQuery, (snapshot) => {\r\n    guests.length = 0\r\n    snapshot.docs.forEach((doc) => {\r\n        guests.push({ ...doc.data(), id: doc.id })\r\n    })\r\n    console.log(guests)\r\n    setLayout()\r\n    //updateCheckboxes();\r\n})\r\n\r\nfunction setLayout() {\r\n    //aanmaken titel\r\n    const title = document.createElement('h1')\r\n\r\n    const name1 = document.createElement('div')\r\n    name1.setAttribute('id', 'name1')\r\n    const name1Content = document.createTextNode(guests[0].surname)\r\n    name1.appendChild(name1Content)\r\n    let titleContent = \"\"\r\n    if (guests.length > 1) {\r\n        const name2 = document.createElement('div')\r\n        name2.setAttribute('id', 'name2')\r\n        const name2Content = document.createTextNode(guests[1].surname)\r\n        name2.appendChild(name2Content)\r\n        titleContent = document.createTextNode('Hallo ' + name1.innerText + ' en ' + name2.innerText)\r\n    }\r\n    else {\r\n        titleContent = document.createTextNode('Hallo ' + name1.innerText)\r\n    }\r\n    title.appendChild(titleContent)\r\n    const body = document.querySelector('body')\r\n    body.appendChild(title)\r\n\r\n    //deel2 - uitnodiging\r\n    const invitationSentence = document.createElement('p')\r\n    let invitationSentenceContent = \"\"\r\n    if (guests.length > 1) {\r\n        if (invitation.inviteToDinner === true) {\r\n            invitationSentenceContent = document.createTextNode('Jullie zijn uitgenodigd voor onze trouw en bijhorende receptie alsook voor het avondfeest.')\r\n        }\r\n        else {\r\n            invitationSentenceContent = document.createTextNode('Jullie zijn uitgenodigd voor onze trouw en bijhorende receptie.')\r\n        }\r\n    }\r\n    else{\r\n        if (invitation.inviteToDinner === true) {\r\n            invitationSentenceContent = document.createTextNode('Je bent uitgenodigd voor onze trouw en bijhorende receptie alsook voor het avondfeest.')\r\n        }\r\n        else {\r\n            invitationSentenceContent = document.createTextNode('Je bent uitgenodigd voor onze trouw en bijhorende receptie.')\r\n        }\r\n    }\r\n    invitationSentence.appendChild(invitationSentenceContent)\r\n    body.appendChild(invitationSentence)\r\n\r\n    //deel3 - rsvp trouw\r\n    const rsvpWeddingForm = document.createElement('form')\r\n    const rsvpWeddingQuestion = document.createElement('p')\r\n    let rsvpWeddingQuestionContent = \"\"\r\n    if(guests.length > 1){\r\n        rsvpWeddingQuestionContent = document.createTextNode('Zullen jullie aanwezig zijn op onze trouw en bijhorende receptie?')\r\n    }\r\n    else{\r\n        rsvpWeddingQuestionContent = document.createTextNode('Zal je aanwezig zijn op onze trouw en bijhorende receptie?')\r\n    }\r\n    rsvpWeddingQuestion.appendChild(rsvpWeddingQuestionContent)\r\n    rsvpWeddingForm.appendChild(rsvpWeddingQuestion)\r\n\r\n    const cbWedding1 = document.createElement('input')\r\n    cbWedding1.setAttribute('type','checkbox')\r\n    cbWedding1.setAttribute('name','rsvpWeddingGuest1')\r\n    cbWedding1.setAttribute('id','0')\r\n    rsvpWeddingForm.appendChild(cbWedding1)\r\n\r\n    if(guests.length > 1){\r\n        const labelWedding1 = document.createElement('label')\r\n        labelWedding1.innerText = guests[0].surname\r\n        labelWedding1.setAttribute('for','rsvpWeddingGuest1')\r\n        rsvpWeddingForm.appendChild(labelWedding1)\r\n\r\n        const cbWedding2 = document.createElement('input')\r\n        cbWedding2.setAttribute('type','checkbox')\r\n        cbWedding2.setAttribute('name','rsvpWeddingGuest2')\r\n        cbWedding2.setAttribute('id','1')\r\n        const labelWedding2 = document.createElement('label')\r\n        labelWedding2.innerText = guests[1].surname\r\n        labelWedding2.setAttribute('for','rsvpWeddingGuest2')\r\n        rsvpWeddingForm.appendChild(cbWedding2)\r\n        rsvpWeddingForm.appendChild(labelWedding2)\r\n    }\r\n\r\n\r\n    body.appendChild(rsvpWeddingForm)\r\n}\r\n\r\n//nog uit te werken\r\n/*function hasKids() {\r\n\r\n}*/\r\n\r\n//reservatie trouw klik-event\r\nconst cbWeddingGuest1 = document.getElementById(\"0\");\r\nconst cbWeddingGuest2 = document.getElementById(\"1\");\r\n\r\ncbWeddingGuest1.addEventListener('change', function () {\r\n    updateReservering()\r\n});\r\ncbWeddingGuest2.addEventListener('change', function () {\r\n    updateReservering()\r\n});\r\n\r\n\r\n//functie cbs wegschrijven naar DB\r\nfunction updateReservering() {\r\n    for (let i = 0; i < guests.length; i++) {\r\n        const docRef = (0,firebase_firestore__WEBPACK_IMPORTED_MODULE_1__.doc)(db, 'guests', guests[i].id)\r\n        ;(0,firebase_firestore__WEBPACK_IMPORTED_MODULE_1__.updateDoc)(docRef, {\r\n            rsvpWedding: cbTrouw.checked,\r\n            rsvpDinner: cbAvondfeest.checked\r\n        })\r\n    }\r\n}\r\n\r\n\r\n\n__webpack_async_result__();\n} catch(e) { __webpack_async_result__(e); } }, 1);\n\n//# sourceURL=webpack://web/./src/reservation.js?");
 
 /***/ }),
 
@@ -147,6 +147,75 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/async module */
+/******/ 	(() => {
+/******/ 		var webpackQueues = typeof Symbol === "function" ? Symbol("webpack queues") : "__webpack_queues__";
+/******/ 		var webpackExports = typeof Symbol === "function" ? Symbol("webpack exports") : "__webpack_exports__";
+/******/ 		var webpackError = typeof Symbol === "function" ? Symbol("webpack error") : "__webpack_error__";
+/******/ 		var resolveQueue = (queue) => {
+/******/ 			if(queue && queue.d < 1) {
+/******/ 				queue.d = 1;
+/******/ 				queue.forEach((fn) => (fn.r--));
+/******/ 				queue.forEach((fn) => (fn.r-- ? fn.r++ : fn()));
+/******/ 			}
+/******/ 		}
+/******/ 		var wrapDeps = (deps) => (deps.map((dep) => {
+/******/ 			if(dep !== null && typeof dep === "object") {
+/******/ 				if(dep[webpackQueues]) return dep;
+/******/ 				if(dep.then) {
+/******/ 					var queue = [];
+/******/ 					queue.d = 0;
+/******/ 					dep.then((r) => {
+/******/ 						obj[webpackExports] = r;
+/******/ 						resolveQueue(queue);
+/******/ 					}, (e) => {
+/******/ 						obj[webpackError] = e;
+/******/ 						resolveQueue(queue);
+/******/ 					});
+/******/ 					var obj = {};
+/******/ 					obj[webpackQueues] = (fn) => (fn(queue));
+/******/ 					return obj;
+/******/ 				}
+/******/ 			}
+/******/ 			var ret = {};
+/******/ 			ret[webpackQueues] = x => {};
+/******/ 			ret[webpackExports] = dep;
+/******/ 			return ret;
+/******/ 		}));
+/******/ 		__webpack_require__.a = (module, body, hasAwait) => {
+/******/ 			var queue;
+/******/ 			hasAwait && ((queue = []).d = -1);
+/******/ 			var depQueues = new Set();
+/******/ 			var exports = module.exports;
+/******/ 			var currentDeps;
+/******/ 			var outerResolve;
+/******/ 			var reject;
+/******/ 			var promise = new Promise((resolve, rej) => {
+/******/ 				reject = rej;
+/******/ 				outerResolve = resolve;
+/******/ 			});
+/******/ 			promise[webpackExports] = exports;
+/******/ 			promise[webpackQueues] = (fn) => (queue && fn(queue), depQueues.forEach(fn), promise["catch"](x => {}));
+/******/ 			module.exports = promise;
+/******/ 			body((deps) => {
+/******/ 				currentDeps = wrapDeps(deps);
+/******/ 				var fn;
+/******/ 				var getResult = () => (currentDeps.map((d) => {
+/******/ 					if(d[webpackError]) throw d[webpackError];
+/******/ 					return d[webpackExports];
+/******/ 				}))
+/******/ 				var promise = new Promise((resolve) => {
+/******/ 					fn = () => (resolve(getResult));
+/******/ 					fn.r = 0;
+/******/ 					var fnQueue = (q) => (q !== queue && !depQueues.has(q) && (depQueues.add(q), q && !q.d && (fn.r++, q.push(fn))));
+/******/ 					currentDeps.map((dep) => (dep[webpackQueues](fnQueue)));
+/******/ 				});
+/******/ 				return fn.r ? promise : getResult();
+/******/ 			}, (err) => ((err ? reject(promise[webpackError] = err) : outerResolve(exports)), resolveQueue(queue)));
+/******/ 			queue && queue.d < 0 && (queue.d = 0);
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
 /******/ 		// define getter functions for harmony exports
