@@ -5,6 +5,9 @@ import {
     doc, getDoc, updateDoc,
     where, query
 } from 'firebase/firestore'
+import {
+    getAuth, signInWithEmailAndPassword
+} from 'firebase/auth'
 
 const firebaseConfig = {
     apiKey: "AIzaSyBML3R1uUh8pkGGtqDqJZ74LdRq1vZomFM",
@@ -17,13 +20,13 @@ const firebaseConfig = {
 
 const cbAvondfeest = document.getElementById("cbAvondfeest");
 
-
 // init firebase app
 initializeApp(firebaseConfig)
 
 // init services
 const db = getFirestore()
-
+const auth = getAuth()
+inloggenMetMail()
 // collection ref
 const GuestsDB = collection(db, 'guests')
 //get URL parameters
@@ -40,19 +43,20 @@ try {
 }
 
 
-
-//gasten opvragen (query) op basis van URL parameter
-const guestQuery = query(GuestsDB, where("invitationID", "==", invitationID))
-let guests = []
-onSnapshot(guestQuery, (snapshot) => {
-    guests.length = 0
-    snapshot.docs.forEach((doc) => {
-        guests.push({ ...doc.data(), id: doc.id })
+function getGuests() {
+    //gasten opvragen (query) op basis van URL parameter
+    const guestQuery = query(GuestsDB, where("invitationID", "==", invitationID))
+    let guests = []
+    onSnapshot(guestQuery, (snapshot) => {
+        guests.length = 0
+        snapshot.docs.forEach((doc) => {
+            guests.push({ ...doc.data(), id: doc.id })
+        })
+        console.log(guests)
+        setLayout()
+        //updateCheckboxes();
     })
-    console.log(guests)
-    setLayout()
-    //updateCheckboxes();
-})
+}
 
 function setLayout() {
     //aanmaken titel
@@ -88,7 +92,7 @@ function setLayout() {
             invitationSentenceContent = document.createTextNode('Jullie zijn uitgenodigd voor onze trouw en bijhorende receptie.')
         }
     }
-    else{
+    else {
         if (invitation.inviteToDinner === true) {
             invitationSentenceContent = document.createTextNode('Je bent uitgenodigd voor onze trouw en bijhorende receptie alsook voor het avondfeest.')
         }
@@ -103,34 +107,34 @@ function setLayout() {
     const rsvpWeddingForm = document.createElement('form')
     const rsvpWeddingQuestion = document.createElement('p')
     let rsvpWeddingQuestionContent = ""
-    if(guests.length > 1){
+    if (guests.length > 1) {
         rsvpWeddingQuestionContent = document.createTextNode('Zullen jullie aanwezig zijn op onze trouw en bijhorende receptie?')
     }
-    else{
+    else {
         rsvpWeddingQuestionContent = document.createTextNode('Zal je aanwezig zijn op onze trouw en bijhorende receptie?')
     }
     rsvpWeddingQuestion.appendChild(rsvpWeddingQuestionContent)
     rsvpWeddingForm.appendChild(rsvpWeddingQuestion)
 
     const cbWedding1 = document.createElement('input')
-    cbWedding1.setAttribute('type','checkbox')
-    cbWedding1.setAttribute('name','rsvpWeddingGuest1')
-    cbWedding1.setAttribute('id','0')
+    cbWedding1.setAttribute('type', 'checkbox')
+    cbWedding1.setAttribute('name', 'rsvpWeddingGuest1')
+    cbWedding1.setAttribute('id', '0')
     rsvpWeddingForm.appendChild(cbWedding1)
 
-    if(guests.length > 1){
+    if (guests.length > 1) {
         const labelWedding1 = document.createElement('label')
         labelWedding1.innerText = guests[0].surname
-        labelWedding1.setAttribute('for','rsvpWeddingGuest1')
+        labelWedding1.setAttribute('for', 'rsvpWeddingGuest1')
         rsvpWeddingForm.appendChild(labelWedding1)
 
         const cbWedding2 = document.createElement('input')
-        cbWedding2.setAttribute('type','checkbox')
-        cbWedding2.setAttribute('name','rsvpWeddingGuest2')
-        cbWedding2.setAttribute('id','1')
+        cbWedding2.setAttribute('type', 'checkbox')
+        cbWedding2.setAttribute('name', 'rsvpWeddingGuest2')
+        cbWedding2.setAttribute('id', '1')
         const labelWedding2 = document.createElement('label')
         labelWedding2.innerText = guests[1].surname
-        labelWedding2.setAttribute('for','rsvpWeddingGuest2')
+        labelWedding2.setAttribute('for', 'rsvpWeddingGuest2')
         rsvpWeddingForm.appendChild(cbWedding2)
         rsvpWeddingForm.appendChild(labelWedding2)
     }
@@ -167,4 +171,10 @@ function updateReservering() {
     }
 }
 
-
+function inloggenMetMail() {
+    signInWithEmailAndPassword(auth, "flor.bogemans@gmail.com", "K!zi5233")
+        .then((cred) => {
+            getGuests()
+            console.log('user logged in:', cred.user)
+        })
+}
