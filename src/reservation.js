@@ -2,12 +2,13 @@
 import { initializeApp } from 'firebase/app'
 import {
     getFirestore, collection, onSnapshot,
-    doc, getDoc, updateDoc,
+    doc, getDoc, updateDoc, getDocs,
     where, query
 } from 'firebase/firestore'
 import {
-    getAuth, signInWithEmailAndPassword
+    getAuth, signInAnonymously, onAuthStateChanged
 } from 'firebase/auth'
+
 
 const firebaseConfig = {
     apiKey: "AIzaSyBML3R1uUh8pkGGtqDqJZ74LdRq1vZomFM",
@@ -17,19 +18,50 @@ const firebaseConfig = {
     messagingSenderId: "926634763848",
     appId: "1:926634763848:web:87b79b4bcd09cff39b1a7d"
 }
-
-const cbAvondfeest = document.getElementById("cbAvondfeest");
-
 // init firebase app
 initializeApp(firebaseConfig)
 
+const auth = getAuth();
+signInAnonymously(auth)
+    .then(() => {
+        console.log(auth.config)
+    })
+    .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorCode)
+        console.log(errorMessage)
+    });
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log(user)
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/auth.user
+        const uid = user.uid;
+        // ...
+    } else {
+        // User is signed out
+        // ...
+    }
+});
+
+
+
+
+
+const cbAvondfeest = document.getElementById("cbAvondfeest");
+
+
+
 // init services
 const db = getFirestore()
-const auth = getAuth()
-inloggenMetMail()
 // collection ref
 const GuestsDB = collection(db, 'guests')
+
+
 //get URL parameters
+
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 let invitationID = urlParams.get('code')
@@ -42,23 +74,27 @@ try {
     console.log(error)
 }
 
+let guests = []
 
-function getGuests() {
+getGuests()
+
+async function getGuests() {
     //gasten opvragen (query) op basis van URL parameter
     const guestQuery = query(GuestsDB, where("invitationID", "==", invitationID))
-    let guests = []
-    onSnapshot(guestQuery, (snapshot) => {
+    
+    getDocs(guestQuery)
+    .then(async (snapshot) => {
         guests.length = 0
         snapshot.docs.forEach((doc) => {
             guests.push({ ...doc.data(), id: doc.id })
         })
-        console.log(guests)
-        setLayout()
-        //updateCheckboxes();
+        await setLayout()
+        await SetCheckBoxStates()
+        await setCBEventListener()
     })
 }
 
-function setLayout() {
+async function setLayout() {
     //aanmaken titel
     const title = document.createElement('h1')
 
@@ -116,65 +152,50 @@ function setLayout() {
     rsvpWeddingQuestion.appendChild(rsvpWeddingQuestionContent)
     rsvpWeddingForm.appendChild(rsvpWeddingQuestion)
 
-    const cbWedding1 = document.createElement('input')
-    cbWedding1.setAttribute('type', 'checkbox')
-    cbWedding1.setAttribute('name', 'rsvpWeddingGuest1')
-    cbWedding1.setAttribute('id', '0')
-    rsvpWeddingForm.appendChild(cbWedding1)
 
-    if (guests.length > 1) {
-        const labelWedding1 = document.createElement('label')
-        labelWedding1.innerText = guests[0].surname
-        labelWedding1.setAttribute('for', 'rsvpWeddingGuest1')
-        rsvpWeddingForm.appendChild(labelWedding1)
+    guests.forEach(guest => {
+        const cbWedding = document.createElement('input')
+        cbWedding.setAttribute('type', 'checkbox')
+        cbWedding.setAttribute('class', 'rsvpWeddingGuest')
+        cbWedding.setAttribute('id', guest.id)
+        rsvpWeddingForm.appendChild(cbWedding)
 
-        const cbWedding2 = document.createElement('input')
-        cbWedding2.setAttribute('type', 'checkbox')
-        cbWedding2.setAttribute('name', 'rsvpWeddingGuest2')
-        cbWedding2.setAttribute('id', '1')
-        const labelWedding2 = document.createElement('label')
-        labelWedding2.innerText = guests[1].surname
-        labelWedding2.setAttribute('for', 'rsvpWeddingGuest2')
-        rsvpWeddingForm.appendChild(cbWedding2)
-        rsvpWeddingForm.appendChild(labelWedding2)
-    }
-
-
-    body.appendChild(rsvpWeddingForm)
+        const labelWedding = document.createElement('label')
+        labelWedding.innerText = guest.surname
+        labelWedding.setAttribute('for', 'rsvpWeddingGuest')
+        rsvpWeddingForm.appendChild(labelWedding)
+        body.appendChild(rsvpWeddingForm)
+    });    
 }
-
-//nog uit te werken
-/*function hasKids() {
-
-}*/
 
 //reservatie trouw klik-event
-const cbWeddingGuest1 = document.getElementById("0");
-const cbWeddingGuest2 = document.getElementById("1");
 
-cbWeddingGuest1.addEventListener('change', function () {
-    updateReservering()
-});
-cbWeddingGuest2.addEventListener('change', function () {
-    updateReservering()
-});
+async function SetCheckBoxStates(){
+    guests.forEach(guest => {
+        console.log(guest.id)
+        document.getElementById(guest.id).checked = guest.rsvpWedding;
+    });
+}
 
+
+async function setCBEventListener(){
+    const cbWeddingGuests = document.querySelectorAll(".rsvpWeddingGuest")
+    const handleChange = (e) => {
+        const clickedCheckboxId = e.target.id;
+        const stateOfCheckbox = e.target.checked;
+        updateReservering(clickedCheckboxId, stateOfCheckbox);
+    };
+    cbWeddingGuests.forEach(function(cbWeddingGuest){
+        cbWeddingGuest.addEventListener('change', handleChange);
+    })
+}
 
 //functie cbs wegschrijven naar DB
-function updateReservering() {
-    for (let i = 0; i < guests.length; i++) {
-        const docRef = doc(db, 'guests', guests[i].id)
+function updateReservering(id, stateOfCheckbox) {
+    console.log("triggered")
+    const docRef = doc(db, 'guests', id)
         updateDoc(docRef, {
-            rsvpWedding: cbTrouw.checked,
-            rsvpDinner: cbAvondfeest.checked
+            rsvpWedding: stateOfCheckbox
         })
-    }
 }
 
-function inloggenMetMail() {
-    signInWithEmailAndPassword(auth, "flor.bogemans@gmail.com", "K!zi5233")
-        .then((cred) => {
-            getGuests()
-            console.log('user logged in:', cred.user)
-        })
-}
