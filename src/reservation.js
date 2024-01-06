@@ -103,6 +103,7 @@ async function setLayout() {
 
     const name1 = document.createElement('div')
     name1.setAttribute('id', 'name1')
+    console.log(guests[0])
     const name1Content = document.createTextNode(guests[0].surname)
     name1.appendChild(name1Content)
     let titleContent = ""
@@ -120,6 +121,7 @@ async function setLayout() {
     const body = document.querySelector('body')
     body.appendChild(title)
     const rsvpForm = document.createElement('form')
+    rsvpForm.className = 'form-check form-switch'
 
 
     //deel2 - uitnodiging
@@ -265,6 +267,7 @@ async function bringPlusOne(body, rsvpForm) {
     surnameInput.setAttribute('id', 'surname');
     surnameInput.setAttribute('name', 'surname');
 
+
     // Create the LAST NAME label
     let lastnameLabel = document.createElement('label');
     lastnameLabel.setAttribute('for', 'lastname');
@@ -392,6 +395,7 @@ async function SetupEveningPartyRSVP(body, rsvpForm) {
         cbEveningparty.setAttribute('type', 'checkbox')
         cbEveningparty.setAttribute('class', 'rsvpEveningparty isCheckbox')
         cbEveningparty.setAttribute('id', guest.id + " Eveningparty")
+        cbEveningparty.setAttribute('role', 'switch')
         rsvpForm.appendChild(cbEveningparty)
 
         const labelEveningparty = document.createElement('label')
